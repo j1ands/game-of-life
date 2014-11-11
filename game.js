@@ -55,17 +55,151 @@ GameOfLife.prototype.setupBoardEvents = function() {
       this.setAttribute('data-status', 'dead');
     }
   };
-  
-  var cell00 = document.getElementById('0-0');
-  cell00.onclick = onCellClick;
+
+  // var cell00 = document.getElementById('0-0');
+  // cell00.onclick = onCellClick;
+  var board = document.getElementById("board");
+  board.addEventListener("click", function() {
+    console.log(event.target);
+    var cellxy = event.target;
+    //var cellxy = document.getElementById(event.target.id);
+    cellxy.onclick = onCellClick;
+  })
 };
+
+Object.prototype.checkCell = function()
+{
+  //var sum = s || 0;
+  // var width = w || -1;
+  // var height = h || -1;
+  //debugger;
+  var sum = 0;
+  var id = this.id.split('-');
+  var width = parseInt(id[0]);
+  var height = parseInt(id[1]);
+  var counti = 0;
+  var countj = 0;
+
+  for(var i = height-1; i < height+2; i++)
+  {
+    counti++;
+    for(var j = width-1; j < width+2; j++)
+    {
+
+      //debugger;
+      currCell = document.getElementById(j+"-"+i);
+      if(currCell && currCell.getAttribute('data-status') == 'alive')
+      {
+        sum++;
+      }
+    }
+  }
+
+  // console.log(i);
+  // counti = 0;
+  //this.getAttribute('data-status') == 'alive'
+  //sum++;
+          //check h-1, w-1
+          //check h-1, w
+          //check h-1, w+1
+          //check h, w-1
+          //check h, w+1
+          //check h+1, w-1
+          //check h+1, w
+          //check h+1, w+1 
+
+  return sum;
+}
 
 GameOfLife.prototype.step = function () {
   // Here is where you want to loop through all the cells
   // on the board and determine, based on it's neighbors,
   // whether the cell should be dead or alive in the next
   // evolution of the game
-  
+  var currCell;
+  var tempSum = 0;
+
+  for (var h=0; h<this.height; h++) {
+    //debugger;
+      
+    for (var w=0; w<this.width; w++) {
+
+      currCell = document.getElementById(w+"-"+h);
+
+      // debugger;
+
+      if(currCell.getAttribute('data-status') == 'alive')
+      {
+
+        tempSum = currCell.checkCell();
+        tempSum--;
+
+        if(tempSum != 2 && tempSum != 3)
+        {
+           currCell.className += " change";
+          //currCell.setAttribute("class", "change");
+        }
+
+      }
+
+      else
+      {
+
+        tempSum = currCell.checkCell();
+
+        if(tempSum == 3)
+        {
+          currCell.className += " change";
+          //currCell.setAttribute("class", "change");
+        }
+
+      }
+    }
+  }
+      //console.log(currCell);
+      //check alive or dead
+        //if alive
+          //check h-1, w-1
+          //check h-1, w
+          //check h-1, w+1
+          //check h, w-1
+          //check h, w+1
+          //check h+1, w-1
+          //check h+1, w
+          //check h+1, w+1
+          //if sum of alive == 2 || 3, live on
+          //else, dead (add class change)
+        //if dead
+          //check h-1, w-1
+          //check h-1, w
+          //check h-1, w+1
+          //check h, w-1
+          //check h, w+1
+          //check h+1, w-1
+          //check h+1, w
+          //check h+1, w+1
+          //if sum of alive == 3, live (add class change)
+
+  var changedEls = document.getElementsByClassName("change");
+  // debugger;
+  for (var i = 0; i < changedEls.length; i++) {
+    changedEls[i].className = changedEls[i].className.replace(" change", "");
+    if(changedEls[i] && changedEls[i].className == "alive") {
+      changedEls[i].className = "dead";
+      changedEls[i].setAttribute('data-status', 'dead');
+    }
+    else if (changedEls[i]) {
+      changedEls[i].className = "alive";
+      changedEls[i].setAttribute('data-status', 'alive');
+    }
+  }
+
+  //document.getElementsByClassName('change')
+    //if data-status dead, change to alive
+    //if data-status alive, change to dead
+    //remove class change
+  //debugger;
+  console.log(this.height, this.width);
 };
 
 GameOfLife.prototype.enableAutoPlay = function () {
@@ -74,5 +208,23 @@ GameOfLife.prototype.enableAutoPlay = function () {
   
 };
 
-var gol = new GameOfLife(20,20);
+var gol = new GameOfLife(5,5);
 gol.createAndShowBoard();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
