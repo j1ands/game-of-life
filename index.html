@@ -13,11 +13,11 @@
   <table id='board'></table>
   
   <div id='control_panel'>
-    <button class='btn btn-success'>Step</button>
-    <button class='btn btn-primary'>Auto-Play</button>
-    <button class='btn btn-danger'>Pause</button>
-    <button class='btn btn-warning'>Reset Random</button>
-    <button class='btn btn-info'>Clear</button>
+    <button onclick="gol.step()" class='btn btn-success'>Step</button>
+    <button onclick="gol.enableAutoPlay()" class='btn btn-primary'>Auto-Play</button>
+    <button onclick="gol.pause()" class='btn btn-danger'>Pause</button>
+    <button onclick="gol.resetRandom()" class='btn btn-warning'>Reset Random</button>
+    <button onclick="gol.clear()" class='btn btn-info'>Clear</button>
   </div>
   
   <script src="game.js"></script>
