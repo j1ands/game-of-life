@@ -1,0 +1,226 @@
+function GameOfLife(width,height) {
+  this.width = width;
+  this.height = height;
+}
+
+GameOfLife.prototype.createAndShowBoard = function () {
+  // create <table> element
+  var goltable = document.createElement("tbody");
+  
+  // build Table HTML
+  var tablehtml = '';
+  for (var h=0; h<this.height; h++) {
+    tablehtml += "<tr id='row+" + h + "'>";
+    for (var w=0; w<this.width; w++) {
+      tablehtml += "<td data-status='dead' id='" + w + "-" + h + "'></td>";
+    }
+    tablehtml += "</tr>";
+  }
+  goltable.innerHTML = tablehtml;
+  
+  // add table to the #board element
+  var board = document.getElementById('board');
+  board.appendChild(goltable);
+  
+  // once html elements are added to the page, attach events to them
+  this.setupBoardEvents();
+};
+
+GameOfLife.prototype.setupBoardEvents = function() {
+  // each board cell has an CSS id in the format of: "x-y" 
+  // where x is the x-coordinate and y the y-coordinate
+  // use this fact to loop through all the ids and assign
+  // them "on-click" events that allow a user to click on 
+  // cells to setup the initial state of the game
+  // before clicking "Step" or "Auto-Play"
+  
+  // clicking on a cell should toggle the cell between "alive" & "dead"
+  // for ex: an "alive" cell be colored "blue", a dead cell could stay white
+  
+  // EXAMPLE FOR ONE CELL
+  // Here is how we would catch a click event on just the 0-0 cell
+  // You need to add the click event on EVERY cell on the board
+  
+  var onCellClick = function (e) {
+    // coordinates of cell, in case you need them
+    var coord_array = this.id.split('-');
+    var coord_hash = {x: coord_array[0], y: coord_array[1]};
+    
+    // how to set the style of the cell when it's clicked
+    if (this.getAttribute('data-status') == 'dead') {
+      this.className = "alive";
+      this.setAttribute('data-status', 'alive');
+    } else {
+      this.className = "dead";
+      this.setAttribute('data-status', 'dead');
+    }
+  };
+
+  var board = document.getElementById("board");
+  board.addEventListener("click", function(event) {
+    console.log(event.target);
+    var cellxy = event.target;
+    onCellClick.call(cellxy,event);
+  });
+
+
+
+};
+
+//Object.prototype.checkCell = function(thisGame)
+Object.prototype.checkCell = function()
+{
+  //debugger;
+  var sum = 0;
+  var id = this.id.split('-');
+  var width = parseInt(id[0]);
+  var height = parseInt(id[1]);
+  //thisGame.tableLoop(function()
+  //GameOfLife.prototype.tableLoop(function())
+  // {
+  //   if(arguments[0] && arguments[0].getAttribute('data-status') == 'alive')
+  //     {
+  //       sum++;
+  //     }
+  // },true,height,width);
+  for(var i = height-1; i < height+2; i++)
+  {
+    for(var j = width-1; j < width+2; j++)
+    {
+      currCell = document.getElementById(j+"-"+i);
+      if(currCell && currCell.getAttribute('data-status') == 'alive')
+      {
+        sum++;
+      }
+    }
+  }
+  return sum;
+}
+
+GameOfLife.prototype.step = function () {
+  // Here is where you want to loop through all the cells
+  // on the board and determine, based on it's neighbors,
+  // whether the cell should be dead or alive in the next
+  // evolution of the game
+
+  this.tableLoop(function()
+  {
+    var tempSum = 0;
+
+    if(arguments[0].getAttribute('data-status') == 'alive')
+    {
+      tempSum = arguments[0].checkCell();
+      //tempSum = arguments[1].checkCell.call(arguments[0],arguments[1]);
+      //tempSum = arguments[1].checkCell.call(arguments[0]);
+      tempSum--;
+      if(tempSum != 2 && tempSum != 3)
+      {
+        arguments[0].className += " change";
+      }
+    }
+    else
+    {
+      tempSum = arguments[0].checkCell();
+      //tempSum = arguments[1].checkCell.call(arguments[0],arguments[1]);
+      //tempSum = arguments[1].checkCell.call(arguments[0]);
+      if(tempSum == 3)
+      {
+        arguments[0].className += " change";
+      }
+    }
+
+  },false,0,0,this);
+
+  var changedEls = document.getElementsByClassName("change");
+  var tempChangEl;
+  
+  while(changedEls[0])
+  { 
+    tempChangEl = changedEls[0];
+    tempChangEl.className = tempChangEl.className.replace(" change", "");
+    if(tempChangEl && tempChangEl.className == "alive") {
+      tempChangEl.className = "dead";
+      tempChangEl.setAttribute('data-status', 'dead');
+    }
+    else if (tempChangEl) {
+      tempChangEl.className = "alive";
+      tempChangEl.setAttribute('data-status', 'alive');
+    }
+  }
+}
+
+GameOfLife.prototype.clear = function()
+{
+  location.reload();
+}
+
+GameOfLife.prototype.pause = function ()
+{
+  clearInterval(cInterval);
+}
+
+GameOfLife.prototype.tableLoop = function(func)
+{
+  var cell;
+  var h, w;
+  var loopH = this.height;
+  var loopW = this.width;
+  var offset = arguments[1] || false;
+  var thisGame = arguments[4] || this;
+
+  if(offset)
+  {
+    var hStart = arguments[2];
+    var wStart = arguments[3];
+    h = hStart - 1;
+    w = wStart - 1;
+    loopH = hStart + 1;
+    loopW = wStart + 1;
+  }
+
+  for(h = 0; h < loopH; h++)
+  {
+    for(w = 0; w < loopW; w++)
+    {
+      cell = document.getElementById(w+"-"+h);
+      func(cell);
+      //func(cell,thisGame);
+    }
+  }
+}
+
+GameOfLife.prototype.resetRandom = function()
+{
+  this.pause();
+
+  this.tableLoop(function()
+  {
+      var randNum = Math.round(Math.random());
+
+      if(randNum)
+      {
+        arguments[0].className = "alive";
+        arguments[0].setAttribute('data-status', 'alive');
+      }
+      else
+      {
+        arguments[0].className = "dead";
+        arguments[0].setAttribute('data-status', 'dead');
+      }
+  });
+}
+
+var cInterval;
+
+GameOfLife.prototype.enableAutoPlay = function () {
+  // Start Auto-Play by running the 'step' function
+  // automatically repeatedly every fixed time interval
+  cInterval = setInterval(function()
+  {
+    gol.step();
+  }, 80);
+};
+
+var gol = new GameOfLife(20,20);
+gol.createAndShowBoard();
+
